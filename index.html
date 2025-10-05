@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Code Analyzer</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/genai": "https://esm.sh/@google/genai@^0.14.0",
+          "marked": "https://esm.sh/marked@^13.0.2",
+          "mermaid": "https://esm.sh/mermaid@10.9.0/dist/mermaid.esm.min.mjs"
+        }
+      }
+    </script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body data-theme="light">
+    <header>
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+            <svg class="sun" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.95-4.243l-1.59-1.59M3 12h2.25m.386-6.364l1.59 1.591M12 5.25a6.75 6.75 0 110 13.5 6.75 6.75 0 010-13.5z" />
+            </svg>
+            <svg class="moon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25c0 5.385 4.365 9.75 9.75 9.75 2.572 0 4.92-.99 6.697-2.648z" />
+            </svg>
+        </button>
+        <h1>AI Code Analyzer</h1>
+        <p>Upload your code and ask Gemini to analyze, summarize, or generate a dependency graph.</p>
+    </header>
+    <main>
+        <section id="controls-section">
+            <h2><span class="number">1</span> Upload Files</h2>
+            <div id="drop-zone" aria-labelledby="drop-zone-label">
+                <div id="drop-zone-prompt">
+                    <p id="drop-zone-label">Drag & drop files or a folder here, or</p>
+                    <p class="drop-zone-tip">Tip: Use drag and drop to avoid exiting fullscreen.</p>
+                    <div class="button-container">
+                        <input type="file" id="file-input" multiple hidden>
+                        <label for="file-input" class="button">Select Files</label>
+                        <input type="file" id="folder-input" webkitdirectory directory hidden>
+                        <label for="folder-input" class="button button-secondary">Select Folder</label>
+                    </div>
+                </div>
+                <div id="drop-zone-feedback" style="display: none;"></div>
+            </div>
+             <div class="demo-loader">
+                <p>Or, try it with a sample project:</p>
+                <button id="load-demo-button" class="button button-tertiary">Load Demo Project</button>
+            </div>
+            <ul id="file-list" aria-live="polite"></ul>
+            <div id="actions">
+                <h3>Actions</h3>
+                <div class="button-container">
+                    <button id="generate-graph-button" class="button button-secondary">Generate Graph</button>
+                </div>
+            </div>
+        </section>
+        <section id="chat-section" aria-labelledby="chat-heading">
+            <div class="tabs">
+                <button id="chat-tab" class="tab-button active" role="tab" aria-selected="true" aria-controls="chat-panel">Chat</button>
+                <button id="graph-tab" class="tab-button" role="tab" aria-selected="false" aria-controls="graph-panel">Graph</button>
+                <button id="dependencies-tab" class="tab-button" role="tab" aria-selected="false" aria-controls="dependencies-panel">Dependencies</button>
+            </div>
+            
+            <div id="chat-panel" class="tab-panel active" role="tabpanel" aria-labelledby="chat-tab">
+                <div id="chat-history">
+                    <div class="message assistant">
+                        <div class="content">
+                            <p>Hello! Please upload some code files, or load the demo project, and I'll help you analyze them.</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="chat-input-container">
+                    <textarea id="chat-input" placeholder="e.g., 'Summarize the purpose of these files.'" aria-label="Chat input"></textarea>
+                    <button id="record-button" aria-label="Start recording">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 016 0v8.25a3 3 0 01-3 3z"></path>
+                        </svg>
+                    </button>
+                    <button id="send-button" aria-label="Send message">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="graph-panel" class="tab-panel" role="tabpanel" aria-labelledby="graph-tab" hidden>
+                <div id="graph-container">
+                    <p>Click "Generate Graph" after uploading files to see a visualization of your code's structure.</p>
+                </div>
+                <div id="graph-controls-overlay">
+                    <button id="download-graph-button" class="graph-control-button" title="Download Graph">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                    </button>
+                    <button id="zoom-in-button" class="graph-control-button" title="Zoom In">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                    </button>
+                    <button id="zoom-out-button" class="graph-control-button" title="Zoom Out">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" /></svg>
+                    </button>
+                    <button id="zoom-reset-button" class="graph-control-button" title="Reset View">
+                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 10l4 4m0-4l-4 4" /></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="dependencies-panel" class="tab-panel" role="tabpanel" aria-labelledby="dependencies-tab" hidden>
+                <div id="dependencies-container">
+                    <p>Click "Generate Graph" after uploading files to see a list of your code's dependencies.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script type="module" src="index.js"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

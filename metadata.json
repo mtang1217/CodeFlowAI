@@ -1,0 +1,7 @@
+{
+  "name": "AI Code Analyzer (Production)",
+  "description": "An application to analyze code repositories using the Gemini API. (Good UI, Colored layers, DarkLight Toggle, Download Graph)",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
