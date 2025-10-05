@@ -46,7 +46,7 @@ let dropZoneResetTimeout;
 let lastGeneratedGraphCode = null; // Stores the mermaid code for context
 
 // --- ElevenLabs Config ---
-const ELEVENLABS_API_KEY = 'd400c1c383b8df990fdba9b6c4b26eda8a4f57d8e5df962c73826eb58206ca2d';
+const ELEVENLABS_API_KEY = "";
 const ELEVENLABS_VOICE_ID = 'UgBBYS2sOqTuMpoF3BR0';
 let ttsState = {
     audio: null,
@@ -62,7 +62,7 @@ let recognitionState = {
 
 // --- Initialization & API Setup ---
 try {
-  ai = new GoogleGenAI({ apiKey: "AIzaSyCheFkhhSK1CDFVRDB9VtoMidjQDTtxk9g" });
+  ai = new GoogleGenAI({ apiKey: "" });
 } catch (error) {
   console.error(error);
   addMessageToHistory(
