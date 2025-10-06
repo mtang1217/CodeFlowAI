@@ -1,4 +1,4 @@
-# AI Code Analyzer Web Application
+# CodeFlowAI
 
 This is a sophisticated AI-powered code analyzer web application built with vanilla JavaScript, HTML, and CSS. It leverages the **Gemini API** to provide powerful code analysis capabilities through a clean, modern, and responsive user interface.
 
